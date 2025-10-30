@@ -1,7 +1,16 @@
 import telebot
 import random
+import os
+import requests
 
-bot = telebot.TeleBot("токен")
+
+
+
+print(os.listdir('images'))
+
+from config import TOKEN
+bot = telebot.TeleBot(TOKEN)
+
 
 @bot.message_handler(commands=['coin'])
 def send_coin(message):
@@ -57,6 +66,88 @@ def send_prediction(message):
     ]
     result = random.choice(predictions)
     bot.reply_to(message, f"🔮 Твоё предсказание:\n\n{result}")
+
+
+
+
+
+
+@bot.message_handler(commands=['mem'])
+def send_mem(message):
+   img_name = random.choice(['mem1.jpeg', 'mem2.jpeg', 'mem3.jpeg', 'mem4.jpg', 'mem5.jpg', 'mem6.png', 'mem7.jpg']
+)
+   with open(f'images/{img_name}', 'rb') as f:  
+        bot.send_photo(message.chat.id, f) 
+
+
+
+
+def get_duck_image_url():    
+    url = 'https://random-d.uk/api/random'
+    res = requests.get(url)
+    data = res.json()
+    return data['url']
+
+    
+@bot.message_handler(commands=['duck'])
+def duck(message):
+    '''По команде duck вызывает функцию get_duck_image_url и отправляет URL изображения утки'''
+    image_url = get_duck_image_url()
+    bot.reply_to(message, image_url)
+
+
+@bot.message_handler(commands=['help'])
+def send_help(message):
+    help_text = (
+        "🛠 Вот что я умею:\n\n"
+        "/start или /hello - Приветствие\n"
+        "/coin - Подбросить монетку 🪙\n"
+        "/pass - Сгенерировать пароль 🔑\n"
+        "/heh [число] - Напечатать 'he' несколько раз 😆\n"
+        "/bye - Попрощаться 👋\n"
+        "/predict - Получить предсказание 🔮\n"
+        "/mem - Отправить случайный мем 🖼️\n"
+        "/duck - Отправить случайную утку 🦆\n"
+        "/fox - Отправить случайную лису🦊\n"
+        "/truth - правда дня🧠\n"
+        "/help - Показать это сообщение 📜"
+    
+    )
+    bot.reply_to(message, help_text)
+
+def get_fox_image_url():
+    url = 'https://randomfox.ca/floof/'
+    
+    res = requests.get(url)
+    res.raise_for_status()
+    data = res.json()
+    return data['image']
+    
+        
+
+@bot.message_handler(commands=['fox'])
+def send_fox(message):
+    image_url = get_fox_image_url()
+    bot.send_photo(message.chat.id, image_url)
+
+
+@bot.message_handler(commands=['truth'])
+def send_truth(message):
+    truths = [
+        "😴 Утро — это заговор против человечества.",
+        "📱 Проверить телефон 100 раз в день — это уже хобби.",
+        "💸 Деньги не главное, но без них всё остальное не работает.",
+        "🐱 Кошки не живут с людьми — это люди живут у кошек.",
+        "☕ Кофе не решает проблемы, но делает тебя милее, пока ты их решаешь.",
+        "💡 Прокрастинация — это искусство делать вид, что ты занят.",
+        "😂 Смех продлевает жизнь, особенно если смеёшься над собой.",
+        "💤 «Ещё 5 минут» — это самая большая ложь в истории.",
+        "📚 Опыт — это когда ты уже сделал все ошибки, но всё равно идёшь дальше.",
+        "🎭 Иногда притворяться, что всё под контролем — единственный способ сохранить контроль."
+    ]
+    truth = random.choice(truths)
+    bot.reply_to(message, f"🧠 Правда дня:\n\n{truth}")
+    
 
 
 @bot.message_handler(func=lambda message: True)
